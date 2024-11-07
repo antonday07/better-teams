@@ -5,10 +5,14 @@ import Button from 'primevue/button'
 import ProgressBar from 'primevue/progressbar'
 import InputText from 'primevue/inputtext'
 import IconField from 'primevue/iconfield'
+import FloatLabel from 'primevue/floatlabel'
 import InputIcon from 'primevue/inputicon'
+import Dialog from 'primevue/dialog'
+import { Form } from '@primevue/forms'
 import Tag from 'primevue/tag'
 import { useUserList } from '@/composables/users/useUserList'
 import { onBeforeMount, onMounted } from 'vue'
+import { useUser } from '@/composables/users/useUser'
 const {
   customers,
   loading,
@@ -24,6 +28,8 @@ const {
   initFilters1
 } = useUserList()
 
+const { showPopupUser, onFormSubmit, isShowPopupAddUser, formUser } = useUser(fetchUsers)
+
 onMounted(async () => {
   fetchCustomers()
   fetchUsers()
@@ -32,7 +38,10 @@ initFilters1()
 </script>
 <template>
   <div class="card">
-    <div class="font-semibold text-xl mb-4">Filtering</div>
+    <div class="flex justify-between items-center">
+      <h3 class="font-semibold text-xl mb-4">List users</h3>
+      <Button class="mb-4" label="Add new user" @click="showPopupUser" />
+    </div>
     <DataTable
       :value="users"
       :paginator="true"
@@ -183,6 +192,74 @@ initFilters1()
       </Column>
     </DataTable>
   </div>
+
+  <Dialog
+    v-model:visible="isShowPopupAddUser"
+    modal
+    header="Add new member"
+    :style="{ width: '30rem' }"
+  >
+    <Form v-slot="$form" :initialValues :resolver @submit="onFormSubmit">
+      <div class="flex items-center gap-4 mb-4">
+        <InputText
+          v-model="formUser.username"
+          name="username"
+          type="text"
+          class="flex-auto"
+          placeholder="Username"
+        />
+      </div>
+      <div class="flex items-center gap-4 mb-8">
+        <InputText
+          v-model="formUser.name"
+          id="name"
+          type="text"
+          class="flex-auto"
+          autocomplete="off"
+          placeholder="Name"
+        />
+      </div>
+      <div class="flex items-center gap-4 mb-8">
+        <InputText
+          v-model="formUser.email"
+          type="email"
+          id="email"
+          class="flex-auto"
+          autocomplete="off"
+          placeholder="Email"
+        />
+      </div>
+      <div class="flex items-center gap-4 mb-8">
+        <InputText
+          v-model="formUser.password"
+          type="password"
+          id="password"
+          class="flex-auto"
+          autocomplete="off"
+          placeholder="Password"
+        />
+      </div>
+      <div class="flex items-center gap-4 mb-8">
+        <InputText
+          v-model="formUser.passwordConfirm"
+          type="password"
+          id="password_confirm"
+          class="flex-auto"
+          autocomplete="off"
+          placeholder="Password confirm"
+        />
+      </div>
+      <div class="flex justify-end gap-2">
+        <Button
+          type="button"
+          label="Cancel"
+          severity="secondary"
+          @click="isShowPopupAddUser = false"
+        ></Button>
+        <Button type="submit" label="Create"></Button>
+      </div>
+    </Form>
+  </Dialog>
 </template>
 
 <style>
